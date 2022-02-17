@@ -1,0 +1,194 @@
+#include <iostream>
+#include <fstream>
+#include <cstring>
+#include <windows.h>
+
+using namespace std;
+
+const int maxlen = 255;
+#pragma pack(push, 1) //директиви компілятору для вирівнювання полів структур
+struct sprocessor {
+    char producer[maxlen];
+    float frequency;
+    int voltage;
+    char type[maxlen];
+
+};
+#pragma pack(pop) //директиви компілятору для вирівнювання полів структур
+
+sprocessor arr[maxlen];
+int processor_index = 0;
+
+int menu();
+void readFromFile(const char* fileName);
+void saveToFile(const char* fileName);
+void addNew();
+void del();
+void sort();
+void change();
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+    SetConsoleOutputCP(1251);
+    SetConsoleCP(1251);
+    while (1) {  //створення нескінченного циклу з меню вибору, виклик відповідних функцій
+        switch (menu()) {
+        case 1:
+            readFromFile("file.dat");
+            break;
+        case 2:
+            saveToFile("file.dat");
+            break;
+        case 3:
+            addNew();
+            break;
+        case 4:
+            del();
+            break;
+        case 5:
+            sort();
+            break;
+        case 6:
+            change();
+            break;
+        case 7:
+            return 0;
+        default:
+            cout << "Невірний вибір" << endl;
+        }
+    }
+}
+int menu()//функція показує пункти меню вибору
+{
+    cout << "\n";
+    int ans;
+    cout << "Оберіть\n";
+    cout << "1-для зчитування з файла\n";
+    cout << "2-для запису в файл\n";
+    cout << "3-для додавання запису\n";
+    cout << "4-для видалення запису\n";
+    cout << "5-для сортування за частотою\n";
+    cout << "6-для зміни запису\n";
+    cout << "7-для виходу\n";
+    cout << "\n";
+    cout << "Ваш вибір  ";
+    cin >> ans;
+    return ans;
+}
+void saveToFile(const char* fileName) //функція, що записує дані у бінарний файл
+{
+    ofstream f;
+    f.open(fileName, ios::binary);
+    f.write((char*)arr, sizeof(sprocessor) * processor_index);
+    f.close();
+    cout << "Введені дані збережено до файлу\n";
+}
+void readFromFile(const char* fileName) //функція, що зчитує дані з бінарного файлу
+{
+    ifstream f;
+    f.open(fileName, ios::binary);
+    if (!f) {
+        cout << "Файлу не існує";
+    }
+    else {
+        sprocessor processor;
+        processor_index = 0;
+        while (1) {
+            f.read((char*)&processor, sizeof(processor));
+            if (f.eof())
+                break;
+            arr[processor_index] = processor;
+            processor_index++;
+        }
+        f.close();
+        cout << "Дані зчитано з файлу\n";
+        for (int i = 0; i < processor_index; i++) {
+            cout << i + 1 << "\t" << arr[i].producer << "\t" << arr[i].frequency <<"\t" << arr[i].voltage <<"\t" << arr[i].type << endl;
+        }
+    }
+}
+void addNew()//функція, що додає(створює) новий запис
+{
+    cout << "Додавання нового запису\n\n";
+    cout << "Запис номер " << processor_index + 1 << "\n";
+    cin.ignore();
+    cout << "Введіть назву Виробника ";
+    cin.getline(arr[processor_index].producer, maxlen);
+    cout << "Введіть тактову частоту в гігагерцах  ";
+    cin >> arr[processor_index].frequency;
+    cout << "Введіть номінальне напруження  ";
+    cin >> arr[processor_index].voltage;
+    cout << "Введіть тип процесора  ";
+    cin >> arr[processor_index].type;
+    processor_index++;
+    cout << "\n";
+    for (int i = 0; i < processor_index; i++) {
+            cout << i + 1 << "\t" << arr[i].producer << "\t" << arr[i].frequency <<"\t" << arr[i].voltage <<"\t" << arr[i].type << endl;
+        }
+    cout << "\n";
+}
+
+void del()//функція, що видаляє запис
+{
+    int d;
+    cout << "Оберіть номер запису, який необхідно видалити ";
+    cin >> d;
+    for (int i = d - 1; i < processor_index; i++)
+       { arr[i] = arr[i + 1];}
+    processor_index--;
+
+    cout << "\n";
+    for (int i = 0; i < processor_index; i++) {
+            cout << i + 1 << "\t" << arr[i].producer << "\t" << arr[i].frequency <<"\t" << arr[i].voltage <<"\t" << arr[i].type << endl;
+        }
+    cout << "\n";
+}
+
+
+void sort() {//функція сортування
+{
+    int index;
+    for (int i = 0; i < processor_index - 1; i++) {
+        index = i;
+        for (int j = i + 1; j < processor_index; j++)
+        {
+            if (arr[j].frequency > arr[index].frequency){
+                index = j;
+            }
+    }
+    sprocessor temp = arr[i];
+    arr[i] = arr[index];
+    arr[index] = temp;
+    }
+}}
+void change() {//функція зміни даних
+    int id = 0;
+    while (id <= 0 || processor_index + 1 < id){
+        cout << "Оберіть номер запису, який необхідно змінити ";
+    cin >> id;
+    }
+    id--;
+    cout << "Редагування запису\n\n";
+    cout << "Запис номер " << id + 1 << "\n";
+    cin.ignore();
+    cout << "Введіть назву Виробника ";
+    cin.getline(arr[id].producer, maxlen);
+    cout << "Введіть тактову частоту в гігагерцах ";
+    cin >> arr[id].frequency;
+    cout << "Введіть номінальне напруження";
+    cin.ignore();
+    cin >> arr[id].voltage;
+
+    cout << "Введіть тип процесора  ";
+    cin >> arr[id].type;
+    cout << "\n";
+    for (int i = 0; i < processor_index; i++) {
+        cout << i + 1 << " Назва Виробника " << arr[i].producer
+        << "\n" << " Тактову частота в гігагерцах " << arr[i].frequency
+        << "\n" << "Номінальне напруження " << arr[i].voltage
+        << "\n" << "Тип процесора " << arr[i].type << endl;
+    }
+    cout << "\n";
+}
+
