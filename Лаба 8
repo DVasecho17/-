@@ -1,0 +1,228 @@
+//файл Vector.h
+#ifndef VECTOR_H_INCLUDED
+#define VECTOR_H_INCLUDED
+#include "Error.h"
+#include <iostream>
+#include <typeinfo>
+using namespace std;
+
+template <class T>
+class Vector
+{
+    int size;
+    T *beg;
+public:
+    Vector()
+    {
+        size=0;
+        beg=0;
+    }
+    Vector(int s)
+    {
+    size=s;
+    beg=new T [s];
+    for(int i=0; i<size; i++)
+        beg[i]=(18*i+6)/1.7;
+    }
+    Vector(int s,T* mas)
+    {
+    size=s;
+    beg=new T[size];
+    for(int i=0; i<size; i++)
+        beg[i]=mas[i];
+    }
+    Vector(const Vector&v)
+    {
+    size=v.size;
+    beg=new T [size];
+    for(int i=0; i<size; i++)
+        beg[i]=v.beg[i];
+    }
+    ~Vector()
+    {
+    if (beg!=0) delete[]beg;
+    }
+    const Vector& operator=(const Vector&v)
+    {
+    if(this==&v)return *this;
+    if(beg!=0) delete []beg;
+    size=v.size;
+    beg=new T [size];
+    for(int i=0; i<size; i++)
+        beg[i]=v.beg[i];
+    return*this;
+    }
+    T operator[](int i)
+    {
+    if(i<0) throw error("index <0");
+    if(i>=size) throw error("index>size");
+    return beg[i];
+    }
+    Vector operator--()
+        {
+    if(size==0) throw error("Vector is empty");
+    if (size==1)
+    {
+       size=0;
+    delete[]beg;
+    beg=0;
+    return *this;
+    };
+    Vector temp(size,beg);
+    delete[]beg;
+    size--;
+    beg=new T[size];
+    for(int i=0;i<size;i++)
+        beg[i]=temp.beg[i];
+    return*this;
+    }
+    Vector operator--(int notused)
+    {
+        Vector temp2(*this);
+
+    if(size==0) throw error("Vector is empty");
+        if (size==1)
+        {
+        size=0;
+        delete[]beg;
+        beg=0;
+        return *this;
+    };
+    Vector temp(size,beg);
+    delete[]beg;
+    size--;
+    beg=new T[size];
+    for(int i=1;i<=size;i++)
+        beg[i-1]=temp.beg[i];
+    return temp2;
+    }
+    int getSize();
+    friend ostream& operator<<(ostream&out,const Vector&v)
+    {
+    if(v.size==0) out<<"Empty\n";
+    else
+    {
+        for (int i=0; i<v.size; i++)
+            out<<v.beg[i]<<" ";
+        out<<endl;
+    }
+    return out;
+    }
+    friend istream& operator>>(istream& in, Vector&v)
+    {
+    for(int i=0; i<v.size; i++)
+    {
+        cout<<">";
+        in>>v.beg[i];
+    }
+    return in;
+    }
+};
+template <class T>
+int Vector<T>::getSize()
+    {
+    if(size==0) throw error("Vector is empty");
+    return size;
+    }
+
+#endif // VECTOR_H_INCLUDED
+
+//файл Error.h
+#ifndef ERROR_H_INCLUDED
+#define ERROR_H_INCLUDED
+#include <string>
+#include <iostream>
+
+using namespace std;
+
+class error //клас помилка.
+{
+    string str;
+public:
+//конструктор, ініціює атрибут str повідомленням про помилку.
+    error(string s)
+    {
+        str=s;
+    }
+    void what()
+    {
+        cout<<str<<endl; //виводить значення атрибута str.
+    }
+};
+
+#endif
+
+//файл main.cpp
+#include "Vector.h"
+#include "Error.h"
+using namespace std;
+int main()
+{
+
+    try
+    {
+        cout<<"Vector int:"<<endl;
+        Vector<int> x(3);
+        cout<<x;
+        cout<<"Nomer?";
+        int i;
+        cin>>i;
+        cout<<x[i]<<endl;
+        cout<<"Size="<<x.getSize()<<endl;
+        x--;
+        cout<<x;
+        cout<<"Size="<<x.getSize()<<endl;
+        x--;
+        cout<<x;
+        cout<<"Size="<<x.getSize()<<endl;
+
+
+        cout<<"Vector double:"<<endl;
+        Vector<double> y(4);
+        cout<<y;
+        cout<<"Nomer?";
+        int i1;
+        cin>>i1;
+        cout<<y[i1]<<endl;
+        cout<<"Size="<<y.getSize()<<endl;
+        y--;
+        cout<<y;
+        cout<<"Size="<<y.getSize()<<endl;
+        y--;
+        cout<<y;
+        cout<<"Size="<<y.getSize()<<endl;
+        --y;
+        cout<<y;
+        cout<<"Size="<<y.getSize()<<endl;
+
+
+        cout<<"Vector char:"<<endl;
+        Vector<char> a(5);
+        cout<<a;
+        cout<<"Nomer?";
+        int i2;
+        cin>>i2;
+        cout<<a[i2]<<endl;
+        cout<<"Size="<<a.getSize()<<endl;
+        a--;
+        cout<<a;
+        cout<<"Size="<<a.getSize()<<endl;
+        --a;
+        cout<<a;
+        cout<<"Size="<<a.getSize()<<endl;
+        --a;
+        cout<<a;
+        cout<<"Size="<<a.getSize()<<endl;
+        --a;
+        cout<<a;
+        cout<<"Size="<<a.getSize()<<endl;
+        --a;
+        cout<<a;
+        cout<<"Size="<<a.getSize()<<endl;
+    }
+    catch(error &e)
+    {
+        e.what();
+    }
+    return 0;
+}
